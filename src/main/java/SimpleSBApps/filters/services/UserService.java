@@ -27,22 +27,34 @@ public class UserService {
         return userDataAccessService.getUsers();
     }
 
+    public User findUserOrThrowError(UUID userId) {
+        return getUsers().stream().filter(user -> {
+            return user.getUserId().equals(userId);
+        }).findFirst().orElseThrow(() -> new IllegalStateException("user not found"));
+    }
 
+    public byte[] retrieveImage(UUID userId) {
+        User u = findUserOrThrowError(userId);
+        ArrayList<String> links = u.getUserImageLinks();
+        if (links.size() == 0) { throw new IllegalStateException("no images found for this user"); }
+        int ind = u.getProfileImageIndex() >= 0 ? u.getProfileImageIndex() : links.size() - 1;
+        String path = String.format("%s/%s", BucketName.PROFILE_IMAGE.getBucketName(), userId);
+        String filename = links.get(ind);
+        return fileStore.downloadImage(path, filename);
+    }
 
     public void uploadImage(UUID userId, MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalStateException("file not found");
         }
-        
+
         if (!Arrays.asList(ContentType.IMAGE_JPEG.getMimeType(),
                 ContentType.IMAGE_PNG.getMimeType(),
                 ContentType.IMAGE_GIF.getMimeType()).contains(file.getContentType())) {
             throw new IllegalStateException("file type not supported");
         }
 
-        User u = getUsers().stream().filter(user -> {
-            return user.getUserId().equals(userId);
-        }).findFirst().orElseThrow(() -> new IllegalStateException("user not found"));
+        User u = findUserOrThrowError(userId);
 
         Map<String, String> metadata = new HashMap<String, String>();
         metadata.put("Content-Type", file.getContentType());
@@ -53,6 +65,7 @@ public class UserService {
 
         try {
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
+            u.addUserImageLink(filename);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

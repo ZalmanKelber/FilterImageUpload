@@ -7,6 +7,7 @@ const User = ({username, userId}) => {
     <div className="user">
       <Dropzone username={username} userId={userId} />
       <p>{userId}</p>
+      <img src={`/api/users/${userId}/image/download`} />
     </div>
   );
 

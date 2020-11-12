@@ -35,4 +35,9 @@ public class UserController {
     public void uploadImage(@PathVariable("userId")UUID userId, @RequestParam("file")MultipartFile file) {
         userService.uploadImage(userId, file);
     }
+
+    @GetMapping(path = "/{userId}/image/download")
+    public byte[] downloadUserImage(@PathVariable("userId")UUID userId) {
+        return userService.retrieveImage(userId);
+    }
 }

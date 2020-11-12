@@ -23,6 +23,8 @@ public class User {
         return userId;
     }
 
+    public int getProfileImageIndex() { return profileImageIndex; }
+
     public String getUsername() {
         return username;
     }
