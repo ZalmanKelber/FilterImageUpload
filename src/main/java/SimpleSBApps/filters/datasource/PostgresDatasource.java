@@ -1,4 +1,4 @@
-package SimpleSBApps.swahilicoast.datasource;
+package SimpleSBApps.filters.datasource;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
