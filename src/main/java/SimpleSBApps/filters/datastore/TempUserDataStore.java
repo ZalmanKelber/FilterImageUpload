@@ -18,6 +18,10 @@ public class TempUserDataStore {
         USERS.add(new User(UUID.fromString("2c74e6b0-1dbc-45ec-947e-78d627820a22"), "Kangxi"));
     }
 
+    public void addUser(User user) {
+        USERS.add(user);
+    }
+
     public List<User> getUsers() {
         return USERS;
     }

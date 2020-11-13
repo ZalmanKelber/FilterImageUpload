@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AmazonConfig {
 
-    @Value("${aws.key}")
+    @Value("${app.aws.key}")
     String key;
-    @Value("${aws.secret}")
+    @Value("${app.aws.secret}")
     String secret;
 
     @Bean

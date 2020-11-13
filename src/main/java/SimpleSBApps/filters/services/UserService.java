@@ -5,6 +5,7 @@ import SimpleSBApps.filters.filestore.FileStore;
 import SimpleSBApps.filters.model.User;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,17 +15,17 @@ import java.util.*;
 @Service
 public class UserService {
 
-    private final UserDataAccessService userDataAccessService;
+    private final UserDao userDao;
     private final FileStore fileStore;
 
     @Autowired
-    public UserService(UserDataAccessService userDataAccessService, FileStore fileStore) {
-        this.userDataAccessService = userDataAccessService;
+    public UserService(@Qualifier("fakeDao") UserDao userDao, FileStore fileStore) {
+        this.userDao = userDao;
         this.fileStore = fileStore;
     }
 
     public List<User> getUsers() {
-        return userDataAccessService.getUsers();
+        return userDao.getAllUsers();
     }
 
     public User findUserOrThrowError(UUID userId) {
@@ -34,12 +35,8 @@ public class UserService {
     }
 
     public byte[] retrieveImage(UUID userId) {
-        User u = findUserOrThrowError(userId);
-        ArrayList<String> links = u.getUserImageLinks();
-        if (links.size() == 0) { throw new IllegalStateException("no images found for this user"); }
-        int ind = u.getProfileImageIndex() >= 0 ? u.getProfileImageIndex() : links.size() - 1;
         String path = String.format("%s/%s", BucketName.PROFILE_IMAGE.getBucketName(), userId);
-        String filename = links.get(ind);
+        String filename = userDao.getProfileImageFilename(userId);
         return fileStore.downloadImage(path, filename);
     }
 
@@ -61,11 +58,15 @@ public class UserService {
         metadata.put("Content-Length", String.valueOf(file.getSize()));
 
         String path = String.format("%s/%s", BucketName.PROFILE_IMAGE.getBucketName(), userId);
-        String filename = String.format("%s-%s", file.getName(), UUID.randomUUID());
+        String originalFilename = file.getName();
+        if (originalFilename.length() > 50) {
+            originalFilename = originalFilename.substring(0,50);
+        }
+        String filename = String.format("%s-%s", originalFilename, UUID.randomUUID());
 
         try {
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
-            u.addUserImageLink(filename);
+            userDao.addImageLink(userId, filename);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
