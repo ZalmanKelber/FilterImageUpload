@@ -21,11 +21,12 @@ public class PostgresUserDataAccessService implements UserDao {
 
     @Override
     public void addUser(User user) {
-        final String sql = "INSERT INTO imageuser (id, username, imageIndex) VALUES (?, ?, ?)";
+        final String sql = "INSERT INTO imageuser (id, username, hashedPassword, imageIndex) VALUES (?, ?, ?, ?)";
         UUID id = user.getUserId();
         String username = user.getUsername();
+        String hashedPassword = user.getHashedPassword();
         int imageIndex = user.getProfileImageIndex();
-        jdbcTemplate.update(sql, new Object[]{id, username, imageIndex});
+        jdbcTemplate.update(sql, new Object[]{id, username, hashedPassword, imageIndex});
         user.getUserImageLinks().stream().forEach(filename -> addImageLink(id, filename));
     }
 
@@ -36,13 +37,15 @@ public class PostgresUserDataAccessService implements UserDao {
         List<User> allUsers = jdbcTemplate.query(sql1, (resultSet, i) -> {
             UUID id = UUID.fromString(resultSet.getString("id"));
             String username = resultSet.getString("username");
+            String hashedPassword = resultSet.getString("hashedPassword");
             int imageIndex = Integer.parseInt(resultSet.getString("imageIndex"));
             User user = new User(id, username);
+            user.setHashedPassword(hashedPassword);
             user.setNewProfileImageIndex(imageIndex);
             hm.put(id, i);
             return user;
         });
-        final String sql2 = "SELECT (userId, filename) FROM image ORDER BY id";
+        final String sql2 = "SELECT * FROM image ORDER BY id";
         jdbcTemplate.query(sql2, (resultSet, i) -> {
             UUID userId = UUID.fromString(resultSet.getString("userId"));
             String filename = resultSet.getString("filename");
@@ -61,8 +64,10 @@ public class PostgresUserDataAccessService implements UserDao {
         List<User> foundUsers = jdbcTemplate.query(sql1, new Object[]{userId}, (resultSet, i) -> {
             UUID id = UUID.fromString(resultSet.getString("id"));
             String username = resultSet.getString("username");
+            String hashedPassword = resultSet.getString("hashedPassword");
             int imageIndex = Integer.parseInt(resultSet.getString("imageIndex"));
             User user = new User(id, username);
+            user.setHashedPassword(hashedPassword);
             user.setNewProfileImageIndex(imageIndex);
             return user;
         });

@@ -6,8 +6,9 @@ import java.util.UUID;
 
 public class User {
 
-    private UUID userId;
-    private String username;
+    private final UUID userId;
+    private final String username;
+    private String hashedPassword;
     private ArrayList<String> userImageLinks;
     private int profileImageIndex;
 
@@ -19,6 +20,10 @@ public class User {
         profileImageIndex = -1;
     }
 
+    public User(String username) {
+        this(UUID.randomUUID(), username);
+    }
+
     public UUID getUserId() {
         return userId;
     }
@@ -28,6 +33,10 @@ public class User {
     public String getUsername() {
         return username;
     }
+
+    public String getHashedPassword() { return hashedPassword; }
+
+    public void setHashedPassword(String hashedPassword) { this.hashedPassword = hashedPassword; }
 
     public ArrayList<String> getUserImageLinks() {
         return userImageLinks;

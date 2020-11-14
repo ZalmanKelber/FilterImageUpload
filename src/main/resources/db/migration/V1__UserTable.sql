@@ -1,6 +1,7 @@
 CREATE TABLE imageuser (
     id UUID NOT NULL PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
+    hashedPassword VARCHAR(200) NOT NULL,
     imageIndex INT
 );
 

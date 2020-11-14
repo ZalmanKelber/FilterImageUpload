@@ -34,6 +34,10 @@ public class UserService {
         }).findFirst().orElseThrow(() -> new IllegalStateException("user not found"));
     }
 
+    public void addUser(User user) {
+        userDao.addUser(user);
+    }
+
     public byte[] retrieveImage(UUID userId) {
         String path = String.format("%s/%s", BucketName.PROFILE_IMAGE.getBucketName(), userId);
         String filename = userDao.getProfileImageFilename(userId);
