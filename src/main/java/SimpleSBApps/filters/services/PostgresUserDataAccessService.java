@@ -110,9 +110,7 @@ public class PostgresUserDataAccessService implements UserDao {
     @Override
     public List<String> getAllImageFilenames(UUID userId) {
         final String sql = "SELECT filename FROM image WHERE userId = ? ORDER BY id";
-        return jdbcTemplate.query(sql, new Object[]{userId}, (resultSet, i) -> {
-            return resultSet.getString("filename");
-        });
+        return jdbcTemplate.query(sql, new Object[]{userId}, (resultSet, i) -> resultSet.getString("filename"));
     }
 
     @Override
