@@ -19,7 +19,7 @@ public class UserService {
     private final FileStore fileStore;
 
     @Autowired
-    public UserService(@Qualifier("fakeDao") UserDao userDao, FileStore fileStore) {
+    public UserService(@Qualifier("postgres") UserDao userDao, FileStore fileStore) {
         this.userDao = userDao;
         this.fileStore = fileStore;
     }
