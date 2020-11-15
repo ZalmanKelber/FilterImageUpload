@@ -3,6 +3,7 @@ package SimpleSBApps.filters.services;
 import SimpleSBApps.filters.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class PostgresUserDataAccessService implements UserDao {
         final String sql = "INSERT INTO imageuser (id, username, hashedPassword, imageIndex) VALUES (?, ?, ?, ?)";
         UUID id = user.getUserId();
         String username = user.getUsername();
-        String hashedPassword = user.getHashedPassword();
+        String hashedPassword = user.getPassword();
         int imageIndex = user.getProfileImageIndex();
         jdbcTemplate.update(sql, new Object[]{id, username, hashedPassword, imageIndex});
         user.getUserImageLinks().stream().forEach(filename -> addImageLink(id, filename));
@@ -39,8 +40,14 @@ public class PostgresUserDataAccessService implements UserDao {
             String username = resultSet.getString("username");
             String hashedPassword = resultSet.getString("hashedPassword");
             int imageIndex = Integer.parseInt(resultSet.getString("imageIndex"));
-            User user = new User(id, username);
-            user.setHashedPassword(hashedPassword);
+            User user = new User(null,
+                    username,
+                    hashedPassword,
+                    true,
+                    true,
+                    true,
+                    true,
+                    id);
             user.setNewProfileImageIndex(imageIndex);
             hm.put(id, i);
             return user;
@@ -66,8 +73,14 @@ public class PostgresUserDataAccessService implements UserDao {
             String username = resultSet.getString("username");
             String hashedPassword = resultSet.getString("hashedPassword");
             int imageIndex = Integer.parseInt(resultSet.getString("imageIndex"));
-            User user = new User(id, username);
-            user.setHashedPassword(hashedPassword);
+            User user = new User(null,
+                    username,
+                    hashedPassword,
+                    true,
+                    true,
+                    true,
+                    true,
+                    id);
             user.setNewProfileImageIndex(imageIndex);
             return user;
         });
@@ -122,5 +135,13 @@ public class PostgresUserDataAccessService implements UserDao {
     public void setIndex(UUID userId, int index) {
         final String sql = "UPDATE imageuser SET imageIndex = ? WHERE id = ?";
         jdbcTemplate.update(sql, new Object[]{index, userId});
+    }
+
+    @Override
+    public UserDetails getUserByUsername(String s) {
+        return getAllUsers().stream().filter(user -> user.getUsername().equals(s)).findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format("could not locate user %s, s"))
+                );
     }
 }

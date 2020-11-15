@@ -6,6 +6,9 @@ import SimpleSBApps.filters.model.User;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +16,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserDao userDao;
     private final FileStore fileStore;
@@ -74,10 +77,10 @@ public class UserService {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
 
-        //2. check if file is image
-        //3. check if user is in database
-        //4. grab metadata if any
-        //5. send file to s3 and update database with link
+    @Override
+    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        return userDao.getUserByUsername(s);
     }
 }

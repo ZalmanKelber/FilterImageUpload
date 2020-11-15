@@ -36,8 +36,13 @@ public class UserController {
         try {
             String username = payload.get("username");
             String hashedPassword = encoder.encode(payload.get("password"));
-            User user = new User(username);
-            user.setHashedPassword(hashedPassword);
+            User user = new User(null,
+                    username,
+                    hashedPassword,
+                    true,
+                    true,
+                    true,
+                    true);
             userService.addUser(user);
 
         } catch (Exception e) {

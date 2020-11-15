@@ -3,6 +3,7 @@ package SimpleSBApps.filters.services;
 import SimpleSBApps.filters.datastore.TempUserDataStore;
 import SimpleSBApps.filters.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -64,5 +65,11 @@ public class TempUserDataAccessService implements UserDao {
     public void setIndex(UUID userId, int index) {
         User user = findUserOrThrowError(userId);
         user.setNewProfileImageIndex(index);
+    }
+
+    @Override
+    public UserDetails getUserByUsername(String s) {
+        return getAllUsers().stream().filter(user -> user.getUsername().equals(s)).findFirst()
+                .orElseThrow(() -> new IllegalStateException("couldn't locate user"));
     }
 }

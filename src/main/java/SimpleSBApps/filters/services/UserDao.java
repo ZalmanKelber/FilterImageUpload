@@ -1,6 +1,7 @@
 package SimpleSBApps.filters.services;
 
 import SimpleSBApps.filters.model.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -23,5 +24,9 @@ public interface UserDao {
     List<String> getAllImageFilenames(UUID userId);
 
     void setIndex(UUID userId, int index);
+
+    public UserDetails getUserByUsername(String s);
+
+
 
 }
